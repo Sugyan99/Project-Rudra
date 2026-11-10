@@ -1,0 +1,26 @@
+---
+# CI Fast (hosted) — every PR runs the lane flow here, split across
+# GitHub-hosted runners and cached with GitHub's Actions cache.
+name: CI Fast (hosted)
+
+on:
+  pull_request:
+    branches: [main, release]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ci-fast-hosted-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  lanes:
+    name: Lanes
+    uses: ./.github/workflows/ci-lanes.yml
+    with:
+      pr-number: ${{ github.event.pull_request.number }}
+      base-ref: ${{ github.base_ref }}
